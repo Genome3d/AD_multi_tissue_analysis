@@ -1,0 +1,37 @@
+id.exposure,id.outcome,outcome,exposure,method,nsnp,b,se,pval
+CDRohp,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,Metazoa_SRP,Inverse variance weighted,3,0.047221298,0.009109552,2.18E-07
+0CszZJ,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,ASPHD1,Wald ratio,1,0.246991104,0.039712295,4.99E-10
+0kRmlC,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,CELF1,Wald ratio,1,-0.197529037,0.029647215,2.69E-11
+2nzhuB,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,ASXL3,Wald ratio,1,0.461504601,0.101163146,5.07E-06
+8Ri9rF,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,CTD-2574D22.2,Wald ratio,1,0.106942552,0.021599235,7.37E-07
+9EoD7C,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,KAT8,Wald ratio,1,-0.104995431,0.022271758,2.43E-06
+a0EtSs,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,B4GALT3,Wald ratio,1,-0.201354867,0.043587407,3.85E-06
+AHyu0F,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,RP11-259G18.1,Wald ratio,1,-0.036256406,0.007012845,2.34E-07
+bBYEg3,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,BIN1,Wald ratio,1,-0.11652092,0.018843888,6.27E-10
+bMEN6D,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,ZKSCAN1,Wald ratio,1,-0.186006944,0.03071984,1.40E-09
+BOtzQA,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,DDX54,Wald ratio,1,-0.301920742,0.064309536,2.67E-06
+BTwkdU,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,RP11-259G18.3,Wald ratio,1,-0.033169698,0.006144859,6.74E-08
+btxjUp,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,YPEL3,Wald ratio,1,-0.25314687,0.044382893,1.17E-08
+cR4bMu,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,ZNF603P,Wald ratio,1,0.038801359,0.008497395,4.96E-06
+crKwNK,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,KANSL1-AS1,Wald ratio,1,-0.037277994,0.006715521,2.84E-08
+dsnT6K,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,STAG3,Wald ratio,1,-0.157360782,0.025344834,5.34E-10
+f3uvyS,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,RITA1,Wald ratio,1,-0.131446466,0.028696059,4.64E-06
+gfdhrz,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,RP11-798G7.6,Wald ratio,1,0.060963664,0.011043325,3.38E-08
+gpO4Hk,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,GRN,Wald ratio,1,-0.277418158,0.039508468,2.19E-12
+I2zUuo,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,DND1P1,Wald ratio,1,-0.034878778,0.006975756,5.73E-07
+JCSppC,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,GGA2,Wald ratio,1,0.192676272,0.042183563,4.93E-06
+k4vbJ0,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,SIGLEC11,Wald ratio,1,0.082459853,0.018184378,5.77E-06
+KACLzh,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,APOE,Wald ratio,1,0.230568247,0.024564172,6.21E-21
+kB7lyS,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,EPHX2,Wald ratio,1,0.137237052,0.027744675,7.56E-07
+lYjdAe,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,PVR,Wald ratio,1,-0.260728754,0.054812295,1.97E-06
+MqRsIa,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,CNPY4,Wald ratio,1,-0.178545082,0.029327802,1.14E-09
+nV5CAh,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,ZSCAN26,Wald ratio,1,-0.087434873,0.018279835,1.73E-06
+oHDSl0,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,RP11-707O23.1,Wald ratio,1,-0.032344179,0.006468836,5.73E-07
+Pchi6I,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,MAPK8IP1P2,Wald ratio,1,-0.031199647,0.006068301,2.73E-07
+PGhmWm,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,MAPT-AS1,Wald ratio,1,0.129979597,0.023809347,4.78E-08
+qJKwfP,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,USP6NL,Wald ratio,1,-0.189008267,0.0399976,2.30E-06
+Smg2IG,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,RP11-521O16.2,Wald ratio,1,0.116950746,0.019952746,4.59E-09
+Sx043T,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,LINC02210,Wald ratio,1,-0.081019369,0.014813243,4.52E-08
+tNizP1,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,LRRC37A4P,Wald ratio,1,0.039145765,0.007046238,2.77E-08
+WGcF9P,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,LRRC37A,Wald ratio,1,-0.074818294,0.014284778,1.63E-07
+YfF9Dq,ebi-a-GCST90027158,Alzheimer's disease || id:ebi-a-GCST90027158,LRRC37A17P,Wald ratio,1,0.082329331,0.014723129,2.25E-08

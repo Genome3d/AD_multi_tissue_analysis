@@ -1,0 +1,117 @@
+---
+title: "2SMR_adult-cortex"
+author: "Zillah Daysh"
+date: "2024-07-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Install libraries
+
+```{r}
+library(remotes)
+#install.packages("TwoSampleMR", repos = c("https://mrcieu.r-universe.dev", "https://cloud.r-project.org"))
+library(TwoSampleMR)
+library(data.table)
+library(tidyverse)
+library(ieugwasr)
+```
+
+#Download outcome data
+```{r}
+#change to other tissues names in code for other tissue 2SMR results
+#read in exposure dataset (already pre-clumped)
+adult_cortex_exposure=read.table("adult_cortex_exposure.txt")
+
+#Set column names
+colnames(adult_cortex_exposure)=adult_cortex_exposure[1,]
+#remove row that has column names 
+adult_cortex_exposure=adult_cortex_exposure[-1,]
+
+#get outcome data - Bellenguez et al. (2022) 
+adult_cortex_outcome=extract_outcome_data(
+  snps=adult_cortex_exposure$SNP,
+  outcomes='ebi-a-GCST90027158') #specify GWAS as input
+
+```
+#Harmonise data
+```{r}
+#effect of a SNP on exposure and the effect of SNP on outcome must each correspond to the same allele 
+#so harmonise data to achieve
+adult_cortex_harmonised=harmonise_data(
+  exposure_dat=adult_cortex_exposure,
+  outcome_dat=adult_cortex_outcome)
+
+write.csv(adult_cortex_harmonised, "adult_cortex_harmonised.csv")
+
+# separate the data into those with multiple SNPs and those without.
+is_duplicate=duplicated(adult_cortex_harmonised$exposure) | duplicated(adult_cortex_harmonised$exposure, fromLast = TRUE)
+
+# Create a data frame with only duplicate rows
+adult_cortex_duplicate=adult_cortex_harmonised[is_duplicate, ]
+# Create a data frame with only non-duplicate rows
+adult_cortex_non_duplicate=adult_cortex_harmonised[!is_duplicate, ]
+```
+
+#Sensitivity analysis
+```{r}
+#heterogeneity test: 
+#looking at duplicate rows --> multiple SNPs for same gene
+adult_cortex_hetero_res=mr_heterogeneity(adult_cortex_duplicate %>%
+                                dplyr::distinct()) 
+
+passed_instruments_adult_cortex=adult_cortex_hetero_res %>% dplyr::filter(Q_pval > 0.05)
+
+
+length(unique(passed_instruments_adult_cortex$exposure)) # 40 passed
+
+failed_instruments_adult_cortex=adult_cortex_hetero_res %>% dplyr::filter(Q_pval <= 0.05)
+length(unique(failed_instruments_adult_cortex$exposure)) # 10 failed
+```
+
+#Plieotropy analyis
+```{r}
+#eqtl affects disease outside of its association with the exposure (gene expression changes)
+adult_cortex_pleiotropy_res=mr_pleiotropy_test(adult_cortex_duplicate %>% 
+                                dplyr::distinct())
+
+passed_pleiotropy_adult_cortex=adult_cortex_pleiotropy_res %>% dplyr::filter(pval > 0.05)
+length(unique((passed_pleiotropy_adult_cortex$exposure))) 
+#1
+
+
+failed_pleiotropy_adult_cortex=adult_cortex_pleiotropy_res %>% dplyr::filter(pval <= 0.05)
+length(unique((failed_pleiotropy_adult_cortex$exposure))) 
+#0
+```
+
+#MR analysis
+```{r}
+# Filter exposures with multiple SNPs to only include ones that passed all sensitivity analyses
+multi_SNPs_adult_cortex=adult_cortex_harmonised %>% 
+                        dplyr::filter(exposure %in% passed_instruments_adult_cortex$exposure) %>% 
+                        dplyr::filter(exposure %in% passed_pleiotropy_adult_cortex$exposure) %>%
+                        dplyr::distinct() 
+
+# Run MR on each of these separately. Use Wald test for non-duplicates
+adult_cortex_MR_non_dup=mr(adult_cortex_non_duplicate, method_list = c("mr_wald_ratio"))
+adult_cortex_MR_dup=mr(adult_cortex_duplicate, method_list = c("mr_egger_regression", "mr_ivw"))
+```
+
+#Bonferroni Correction
+```{r}
+#significance test for multiple testing (associations between IV and exposure)
+threshold=0.05/length(adult_cortex_MR_non_dup$id.exposure)
+sig_adult_cortex_MR_non_dup=subset(adult_cortex_MR_non_dup, adult_cortex_MR_non_dup$pval < threshold)
+
+threshold2=0.05/length(adult_cortex_MR_dup$id.exposure)
+sig_adult_cortex_MR_dup=subset(adult_cortex_MR_dup, adult_cortex_MR_dup$pval < threshold2)
+
+adult_cortex_sig_MR_results = full_join(sig_adult_cortex_MR_dup,sig_adult_cortex_MR_non_dup)
+#save datasets for analysis
+write.csv(adult_cortex_sig_MR_results, "adult_cortex_sig_MR_results.csv")
+```
+
