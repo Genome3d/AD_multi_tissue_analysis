@@ -12,21 +12,21 @@ library(biomaRt) #ensembl gene annotations
 library(forestploter) #forest plot
 
 #Read in AD causal risk gene data - created in Multi_tissue_MR_data_filtering.R
-LOAD_2SMR_data = read.csv("LOAD_2SMR_data.csv")[,-1]
-LOAD_SNP_data = read.csv( "LOAD_SNP_data.csv")[,-1]
+AD_2SMR_data = read.csv("AD_2SMR_data.csv")[,-c(1:2)]
+AD_SNP_data = read.csv( "AD_SNP_data.csv")[,-1]
 
 ################################################################################
 #Fig. 2A - Tile Plot
 
-#LOLOAD risk genes present in at least 6 tissues
-multi_tissue_LOAD_genes = LOAD_2SMR_data %>%
+#AD risk genes present in at least 6 tissues
+multi_tissue_AD_genes = AD_2SMR_data %>%
   group_by(exposure) %>%
   filter(n_distinct(tissue) > 5)
 
-fig_2a = ggplot(multi_tissue_LOAD_genes, aes(y = tissue, x= exposure, fill = or)) +
+fig_2a = ggplot(multi_tissue_AD_genes, aes(y = tissue, x= exposure, fill = or)) +
   geom_tile(color = "black", lwd = 0.75, lty = 1,aes(width = 0.42, height = 1)) +  
   theme_bw(base_size = 18) +                                
-  xlab("LOAD risk genes") +   
+  xlab("AD risk genes") +   
   ylab("Tissue") +
   labs(fill = "OR (risk)")+
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
@@ -41,16 +41,16 @@ ggsave("fig_2a.tiff", plot = fig_2a, width = 11, height = 4.4, dpi = "print")
 ################################################################################
 #Fig. 2B - switch gene tile plot
 
-LOAD_switch_genes = LOAD_2SMR_data %>%
+AD_switch_genes = AD_2SMR_data %>%
   group_by(exposure) %>%
   filter(any(or > 1) & any(or < 1)) %>%
   ungroup()
 
 
-fig_2b = ggplot(LOAD_switch_genes, aes(y = tissue, x= exposure, fill = or)) +
+fig_2b = ggplot(AD_switch_genes, aes(y = tissue, x= exposure, fill = or)) +
   geom_tile(color = "black", lwd = 0.75, lty = 1,aes(width = 0.38, height = 1)) + 
   theme_bw(base_size = 18) +                                  
-  xlab("LOAD risk genes") +   
+  xlab("AD risk genes") +   
   ylab("Tissue") +
   labs(fill = "OR (risk)")+
   theme(axis.text.x = element_text(angle = 45, hjust = 1, ),
@@ -69,7 +69,7 @@ ggsave("fig_2b.tiff", plot = fig_2b, width = 11, height = 4.4, dpi = "print")
 ################################################################################
 #Fig. 4a - Forest Plot
 
-KAT8_LOAD_data = full_join(LOAD_SNP_data[,c(2:7)], LOAD_2SMR_data[,c(4,9,10,13:15)]) %>%
+KAT8_AD_data = full_join(AD_SNP_data[,c(2:7)], AD_2SMR_data[,c(3,8,9,12:14)]) %>%
   filter(exposure == "KAT8") %>% #select KAT8 gene
   mutate(aFC.lci95 = beta.exposure - 1.96 * se.exposure, #create upper and lower CI for allelic fold change
          aFC.uci95 = beta.exposure + 1.96 * se.exposure,
@@ -84,11 +84,11 @@ KAT8_LOAD_data = full_join(LOAD_SNP_data[,c(2:7)], LOAD_2SMR_data[,c(4,9,10,13:1
   arrange(SNP)
 
 #rearrange dataframe for forest plot
-KAT8_forest_plot = KAT8_LOAD_data %>%
+KAT8_forest_plot = KAT8_AD_data %>%
   group_by(Gene) %>%
   summarise_all(~ NA) %>%
   mutate(`Gene : Tissue` = Gene) %>%
-  bind_rows(KAT8_LOAD_data %>% mutate(`Gene : Tissue` = paste0("    ", Tissue))) %>%
+  bind_rows(KAT8_AD_data %>% mutate(`Gene : Tissue` = paste0("    ", Tissue))) %>%
   mutate(`Gene : Tissue` = ifelse(is.na(Tissue), Gene, `Gene : Tissue`)) %>%
   dplyr::select(`Gene : Tissue`, everything(), -Gene, -Tissue) %>%
   mutate(across(everything(), ~ ifelse(is.na(.), ifelse(is.numeric(.), NA, ""), .))) %>%
@@ -125,22 +125,22 @@ ggsave("fig_4a.tiff", plot = fig_4a, width = 11, height = 3.5, dpi = "print")
 #Supplementary Figure 1 - Ideogram using ensembl annotations
 
 #Get unique gene list
-total_gene_list_LOAD=unique(LOAD_2SMR_data$exposure)
+total_gene_list_AD=unique(AD_2SMR_data$exposure)
 
 #gene mart for annotating risk genes
 gene_mart=useMart("ensembl",dataset = "hsapiens_gene_ensembl" )
 
 #use ensembl to get location of risk genes
-LOAD_MR_gene_location = getBM(attributes=c('hgnc_symbol',
+AD_MR_gene_location = getBM(attributes=c('hgnc_symbol',
                                            'chromosome_name',
                                            'start_position',
                                            'end_position',
                                            'band'),
                               filters = ("hgnc_symbol"),
-                              values=list(total_gene_list_LOAD),
+                              values=list(total_gene_list_AD),
                               mart=gene_mart) 
 
-LOAD_MR_gene_location_ideogram = LOAD_MR_gene_location %>%
+AD_MR_gene_location_ideogram = AD_MR_gene_location %>%
   filter(nchar(chromosome_name) <= 2) %>%
   dplyr::select(c('chromosome_name', 'start_position', 'end_position'))%>%
   dplyr::rename("Chr" = "chromosome_name", 
@@ -148,7 +148,7 @@ LOAD_MR_gene_location_ideogram = LOAD_MR_gene_location %>%
                 "End" = "end_position") %>%
   mutate("Shape" = "circle", 
          "color" = "B32357", 
-         "Type" = "LOAD risk gene") %>%
+         "Type" = "AD risk gene") %>%
   dplyr::select(c('Type', 'Shape', 'Chr', 'Start', 'End', 'color'))
 
 #annotations for ideogram
@@ -156,7 +156,7 @@ data("human_karyotype")
 data("gene_density")
 
 #create ideogram
-ideogram(karyotype = human_karyotype, label = LOAD_MR_gene_location_ideogram,
+ideogram(karyotype = human_karyotype, label = AD_MR_gene_location_ideogram,
          overlaid = gene_density,
          colorset1 = pal,
          label_type = "marker")
@@ -168,8 +168,8 @@ convertSVG("chromosome.svg", device = "png", dpi = 1600)
 #Supplementary figure 2
 #Forest plot of switch genes 
 
-final_filtered_switch_forest = full_join(LOAD_SNP_data[,c(2:7)], LOAD_2SMR_data[,c(4,9,10,13:15)]) %>%
-  filter(exposure %in% LOAD_switch_genes$exposure) %>% 
+final_filtered_switch_forest = full_join(AD_SNP_data[,c(2:7)],  AD_2SMR_data[,c(3,8,9,12:14)]) %>%
+  filter(exposure %in% AD_switch_genes$exposure) %>% 
   mutate(aFC.lci95 = beta.exposure - 1.96 * se.exposure, 
          aFC.uci95 = beta.exposure + 1.96 * se.exposure,
          'AD OR' = paste(rep(" ", 20), collapse = " "),
@@ -219,7 +219,7 @@ supp_fig_2 = forest(final_filtered_switch_paper_forest[c(1,2,12,13,5,14,15)],
                        c(-0.5, 0, 0.5, 1)),
 )
 
-ggsave("supp_fig_2.tiff", plot = supp_fig_2, width = 14, height = 15, dpi = "print")
+ggsave("supp_fig_2_new.tiff", plot = supp_fig_2, width = 14, height = 15, dpi = "print")
 
 ################################################################################
 #Supplementary Figures 3:10
@@ -227,10 +227,10 @@ ggsave("supp_fig_2.tiff", plot = supp_fig_2, width = 14, height = 15, dpi = "pri
 
 ################################################################################
 #Supplementary Table 2 
-LOAD_2SMR_data_table = merge(LOAD_2SMR_data, LOAD_SNP_data, by = c("id.exposure"))
-LOAD_2SMR_data_table = LOAD_2SMR_data_table[,c(4,16, 7:10, 11:15)] 
+AD_2SMR_data_table = merge(AD_2SMR_data, AD_SNP_data, by = c("id.exposure"))
+AD_2SMR_data_table = AD_2SMR_data_table[,c(4,16, 7:10, 11:15)] 
 
-LOAD_2SMR_data_table = LOAD_2SMR_data_table %>%
+AD_2SMR_data_table = AD_2SMR_data_table %>%
   rename("Exposure (Gene)" = "exposure.x",
          "beta.MR" = "b",
          "SE.MR" = "se",
@@ -243,12 +243,12 @@ LOAD_2SMR_data_table = LOAD_2SMR_data_table %>%
          "uci95" = "up_ci") %>%
   arrange((`Exposure (Gene)`))
 
-write.csv(LOAD_2SMR_data_table, "LOAD_2SMR_data_table.csv")
+write.csv(AD_2SMR_data_table, "AD_2SMR_data_table.csv")
 ################################################################################
 #Supplementary Table 3
-LOAD_2SMR_KAT8_table = LOAD_2SMR_data_table %>%
+AD_2SMR_KAT8_table = AD_2SMR_data_table %>%
   filter(`Exposure (Gene)` == "KAT8")
 
-write.csv(LOAD_2SMR_KAT8_table[1:11], "LOAD_2SMR_KAT8_table.csv")
+write.csv(AD_2SMR_KAT8_table[1:11], "AD_2SMR_KAT8_table.csv")
 
 

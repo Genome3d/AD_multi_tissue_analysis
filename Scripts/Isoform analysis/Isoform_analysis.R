@@ -2,7 +2,7 @@
 #Transcript isoform analysis script
 #Zillah Daysh
 ################################################################################
-#load libraries
+#Load libraries
 library(tidyverse)
 library(rstatix)
 library(ggpubr)
@@ -24,7 +24,7 @@ GTex_TPM_tissue_gene = GTex_TPM_tissue_gene %>%
          SAMPID = sub("-$", "", SAMPID))
 
 #2SMR data for all nine tissues
-LOAD_2SMR_data = read.csv("LOAD_2SMR_data.csv")[,-c(1:2,4:5,7:8,18)]
+AD_2SMR_data = read.csv("AD_2SMR_data.csv")[,-c(1:2,4:5,7:8,18)]
 
 ################################################################################
 #Data wrangling for analysis
@@ -42,9 +42,9 @@ TPM_subset$tissue = fct_recode(TPM_subset$tissue,
 
 #filter to only keep tissues for each gene which were significant in 2SMR
 TPM_tissue_gene = TPM_subset %>%
-  inner_join(LOAD_2SMR_data, by = c("Gene_name" = "exposure", "tissue" = "tissue")) %>%
+  inner_join(AD_2SMR_data, by = c("Gene_name" = "exposure", "tissue" = "tissue")) %>%
   mutate(transcript_id = substr(transcript_id, 1, 15),
-         LOAD_risk = ifelse(or > 1 , "Risk", "Protection"))
+         AD_risk = ifelse(or > 1 , "Risk", "Protection"))
 
 #remove switch gene transcripts whose medians are absent in all tissues
 remove_transcripts = TPM_tissue_gene %>%
@@ -186,8 +186,8 @@ for (i in genes) {
     filter(Gene_name == i) %>%
     mutate(tissue = factor(tissue, 
                            levels = c(
-                             unique(tissue[LOAD_risk == "Protection"]), 
-                             unique(tissue[LOAD_risk == "Risk"])
+                             unique(tissue[AD_risk == "Protection"]), 
+                             unique(tissue[AD_risk == "Risk"])
                            )))
   
   # Get unique transcripts for gene
@@ -269,19 +269,19 @@ for (i in genes) {
   # Extract tissue and risk information for the current gene
   tissue_risk_info = TPM_tissue_gene_filtered %>%
     filter(Gene_name == i) %>%
-    select(tissue, LOAD_risk) %>%
+    select(tissue, AD_risk) %>%
     distinct()
   
   # Determine tissue_filter based on the presence of "Protection" and "Risk" tissues
   #needed for below plotting to group tissues into "risk" and "protection" and keeping 
   #relevant significance bars
-  num_protection = nrow(tissue_risk_info %>% filter(LOAD_risk == "Protection"))
-  num_risk = nrow(tissue_risk_info %>% filter(LOAD_risk == "Risk"))
+  num_protection = nrow(tissue_risk_info %>% filter(AD_risk == "Protection"))
+  num_risk = nrow(tissue_risk_info %>% filter(AD_risk == "Risk"))
   
   if (num_protection == 1 && num_risk > 1) {
-    tissue_filter = tissue_risk_info$tissue[tissue_risk_info$LOAD_risk == "Protection"]
+    tissue_filter = tissue_risk_info$tissue[tissue_risk_info$AD_risk == "Protection"]
   } else if (num_risk == 1 && num_protection > 1) {
-    tissue_filter = tissue_risk_info$tissue[tissue_risk_info$LOAD_risk == "Risk"]
+    tissue_filter = tissue_risk_info$tissue[tissue_risk_info$AD_risk == "Risk"]
   } else {
     tissue_filter = tissue_risk_info$tissue
   }
@@ -294,8 +294,8 @@ for (i in genes) {
     filter(!any(p.signif == "ns")) %>%
     filter(P.adj == max(P.adj)) %>%
     ungroup() %>%
-    mutate(group1 = recode(group1, !!!setNames(tissue_risk_info$LOAD_risk, tissue_risk_info$tissue)),
-           group2 = recode(group2, !!!setNames(tissue_risk_info$LOAD_risk, tissue_risk_info$tissue)))
+    mutate(group1 = recode(group1, !!!setNames(tissue_risk_info$AD_risk, tissue_risk_info$tissue)),
+           group2 = recode(group2, !!!setNames(tissue_risk_info$AD_risk, tissue_risk_info$tissue)))
   
   # Store the results
   merged.data.final_gene_risk[[i]] = merged_data_risk
@@ -308,7 +308,7 @@ for (i in genes) {
 #(will need to manually change scale fill manual to line up with number of risk/protective tissues)
 #number of risk/protective tissues easily found in TPM_tissue_gene_filtered using this code:
 #TPM_tissue_gene_filtered %>%
-  #select(Gene_name, tissue, LOAD_risk) %>%
+  #select(Gene_name, tissue, AD_risk) %>%
   #distinct()
 
 ################################################################################
@@ -318,10 +318,10 @@ TPM_model_BIN1 = TPM_tissue_gene_filtered %>%
   filter(Gene_name == "BIN1")
 
 TPM_model_BIN1$tissue = factor(TPM_model_BIN1$tissue, 
-                                levels = c(unique(TPM_model_BIN1$tissue[TPM_model_BIN1$LOAD_risk == "Protection"]), 
-                                           unique(TPM_model_BIN1$tissue[TPM_model_BIN1$LOAD_risk == "Risk"])))
+                                levels = c(unique(TPM_model_BIN1$tissue[TPM_model_BIN1$AD_risk == "Protection"]), 
+                                           unique(TPM_model_BIN1$tissue[TPM_model_BIN1$AD_risk == "Risk"])))
 
-fig_3a = ggplot(TPM_model_BIN1, aes(x = LOAD_risk, y = percent_TPM)) +  # Tissue risk on x-axis
+fig_3a = ggplot(TPM_model_BIN1, aes(x = AD_risk, y = percent_TPM)) +  # Tissue risk on x-axis
   geom_boxplot(aes(fill = tissue)) +
   theme_bw(base_size = 16) +
   labs(x = "Tissue risk", y = "Relative TPM abundance", fill = "Tissue") + 
@@ -334,6 +334,7 @@ fig_3a = ggplot(TPM_model_BIN1, aes(x = LOAD_risk, y = percent_TPM)) +  # Tissue
   facet_wrap(~ transcript_name, scales = "free", nrow = 2) +
   theme(
     legend.position = "bottom",
+    legend.margin = margin(t = -10, unit = "pt"),
     strip.text = element_text(face = "bold"),
     axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.12)))
@@ -367,10 +368,10 @@ TPM_model_GAL3ST4 = TPM_tissue_gene_filtered %>%
 
 
 TPM_model_GAL3ST4$tissue = factor(TPM_model_GAL3ST4$tissue, 
-                                 levels = c(unique(TPM_model_GAL3ST4$tissue[TPM_model_GAL3ST4$LOAD_risk == "Protection"]), 
-                                            unique(TPM_model_GAL3ST4$tissue[TPM_model_GAL3ST4$LOAD_risk == "Risk"])))
+                                 levels = c(unique(TPM_model_GAL3ST4$tissue[TPM_model_GAL3ST4$AD_risk == "Protection"]), 
+                                            unique(TPM_model_GAL3ST4$tissue[TPM_model_GAL3ST4$AD_risk == "Risk"])))
 
-fig_3b = ggplot(TPM_model_GAL3ST4, aes(x = LOAD_risk, y = percent_TPM)) +  # Tissue risk on x-axis
+fig_3b = ggplot(TPM_model_GAL3ST4, aes(x = AD_risk, y = percent_TPM)) +  # Tissue risk on x-axis
   geom_boxplot(aes(fill = tissue)) +
   theme_bw(base_size = 16) +
   labs(x = "Tissue risk", y = "Relative TPM abundance", fill = "Tissue")  +
@@ -383,12 +384,13 @@ fig_3b = ggplot(TPM_model_GAL3ST4, aes(x = LOAD_risk, y = percent_TPM)) +  # Tis
   facet_wrap(~ transcript_name, scales = "free", nrow = 1) +
   theme(
     legend.position = "bottom",
+    legend.margin = margin(t = -10, unit = "pt"),
     strip.text = element_text(face = "bold"),
     axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.12)))
 
 
-ggsave("fig_3b.tiff", plot = fig_3b, width = 11, height = 4.5, dpi = "print")
+ggsave("fig_3b.tiff", plot = fig_3b, width = 11, height = 3.85, dpi = "print")
 
 #plot with all pairwise results (supp fig) 
 ggplot(TPM_model_GAL3ST4, aes(x = tissue, y = percent_TPM)) +  
@@ -403,7 +405,7 @@ ggplot(TPM_model_GAL3ST4, aes(x = tissue, y = percent_TPM)) +
     hide.ns = TRUE) +
   facet_wrap(~ transcript_name, scales = "free", nrow = 2) +
   theme(
-    legend.position = "none",
+    legend.position = "bottom",
     axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.12)))
 
@@ -417,11 +419,11 @@ TPM_model_ICA1L = TPM_tissue_gene_filtered %>%
 
 
 TPM_model_ICA1L$tissue = factor(TPM_model_ICA1L$tissue, 
-                                levels = c(unique(TPM_model_ICA1L$tissue[TPM_model_ICA1L$LOAD_risk == "Protection"]), 
-                                           unique(TPM_model_ICA1L$tissue[TPM_model_ICA1L$LOAD_risk == "Risk"])))
+                                levels = c(unique(TPM_model_ICA1L$tissue[TPM_model_ICA1L$AD_risk == "Protection"]), 
+                                           unique(TPM_model_ICA1L$tissue[TPM_model_ICA1L$AD_risk == "Risk"])))
 
 
-fig_3c = ggplot(TPM_model_ICA1L, aes(x = LOAD_risk, y = percent_TPM)) +  # Tissue risk on x-axis
+fig_3c = ggplot(TPM_model_ICA1L, aes(x = AD_risk, y = percent_TPM)) +  # Tissue risk on x-axis
   geom_boxplot(aes(fill = tissue)) +
   theme_bw(base_size = 16) +
   labs(x = "Tissue risk", y = "Relative TPM abundance", fill = "Tissue")  +
@@ -434,6 +436,7 @@ fig_3c = ggplot(TPM_model_ICA1L, aes(x = LOAD_risk, y = percent_TPM)) +  # Tissu
   facet_wrap(~ transcript_name, scales = "free", nrow = 2) +
   theme(
     legend.position = "bottom",
+    legend.margin = margin(t = -10, unit = "pt"),
     strip.text = element_text(face = "bold"),
     axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.12)))
@@ -490,11 +493,12 @@ fig_4b = ggplot(TPM_model_KAT8, aes(x = tissue, y = percent_TPM)) +
                      hide.ns = TRUE) +
   facet_wrap(~as.factor(transcript_name), scales = "free", nrow = 2) +
   theme(legend.position = "none",
+        strip.text = element_text(face = "bold"),
         axis.text.x = element_text(angle = 65, hjust = 1, size = 14))+
   annotate("rect" , xmin = 7.6, xmax = 8.4, ymin= -Inf, ymax = Inf, fill = "#00BFC4",alpha=0.15)+
   scale_y_continuous(expand = expansion(mult = c(0, 0.12)))
 
-ggsave("fig_4b.tiff", plot = fig_4b, width = 13, height = 8, dpi = "print")
+ggsave("fig_4b.tiff", plot = fig_4b, width = 11, height = 8, dpi = "print")
 
 
 #all pairwise differences (supp figure)

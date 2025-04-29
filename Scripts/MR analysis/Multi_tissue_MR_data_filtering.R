@@ -45,7 +45,7 @@ whole_blood_sig_MR_results = read.csv("blood_sig_MR_results.csv")
 whole_blood_sig_MR_results$tissue = 'Whole Blood'
 
 #join datasets together
-LOAD_2SMR_data=list(adult_cortex_sig_MR_results,
+AD_2SMR_data=list(adult_cortex_sig_MR_results,
                     aorta_sig_MR_results,
                     coronary_sig_MR_results,
                     fetal_cortex_sig_MR_results,
@@ -57,11 +57,11 @@ LOAD_2SMR_data=list(adult_cortex_sig_MR_results,
   reduce(full_join)
 
 #generate odds ratios from beta values (TwoSampleMR function)
-LOAD_2SMR_data=generate_odds_ratios(LOAD_2SMR_data)
+AD_2SMR_data=generate_odds_ratios(AD_2SMR_data)
 
 #there are 185 unique risk genes across the 9 tissues 
 #(further filtering in script below)
-length(unique(LOAD_2SMR_data$exposure))
+length(unique(AD_2SMR_data$exposure))
 
 ################################################################################
 #SNP and regulation (log(aFC)) info dataset
@@ -110,10 +110,10 @@ tissue_SNP_list=list(aorta_harmonised,
 
 #filter to keep SNPs only significant following 2SMR
 #keep rows that match up with significant id exposure
-filtered_SNP_df = filter(tissue_SNP_list, id.exposure %in% LOAD_2SMR_data$id.exposure) 
+filtered_SNP_df = filter(tissue_SNP_list, id.exposure %in% AD_2SMR_data$id.exposure) 
 
 
-write.csv(filtered_SNP_df, "LOAD_SNP_data.csv")
+write.csv(filtered_SNP_df, "AD_SNP_data.csv")
 
 ################################################################################
 #Filter MR dataset further to exclude one SNP:multiple exposure in a single tissue
@@ -135,22 +135,22 @@ filtered_SNP_exclusion = filter(filtered_SNP_df, SNP_tissue %in% snp_exposure_fr
 #filter tissue comparison dataset by removing exposure-tissue combos which have multiple 
 #exposures for the same SNP --> removing 26 observations
 
-LOAD_2SMR_data = LOAD_2SMR_data%>%
+AD_2SMR_data = AD_2SMR_data%>%
   mutate(exposure_tissue=paste(exposure, tissue, sep = "-"))
 
-LOAD_2SMR_data = filter(LOAD_2SMR_data, !exposure_tissue %in% filtered_SNP_exclusion$exposure_tissue)
+AD_2SMR_data = filter(AD_2SMR_data, !exposure_tissue %in% filtered_SNP_exclusion$exposure_tissue)
 
-length(unique(LOAD_2SMR_data$exposure))
+length(unique(AD_2SMR_data$exposure))
 
 #removes 6 genes entirely from analysis
 
-LOAD_2SMR_data = LOAD_2SMR_data[,-16]
+AD_2SMR_data = AD_2SMR_data[,-16]
 
-write.csv(LOAD_2SMR_data,"LOAD_2SMR_data.csv")
+write.csv(AD_2SMR_data,"AD_2SMR_data.csv")
 ################################################################################
 #joint dataset MR and aFC for switch gene analysis
 
-tissue_comparison_switch.final = LOAD_2SMR_data %>%
+tissue_comparison_switch.final = AD_2SMR_data %>%
   group_by(exposure) %>%
   filter(any(or > 1) & any(or < 1)) %>%
   ungroup() %>%
