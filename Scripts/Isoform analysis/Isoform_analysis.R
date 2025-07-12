@@ -24,7 +24,7 @@ GTex_TPM_tissue_gene = GTex_TPM_tissue_gene %>%
          SAMPID = sub("-$", "", SAMPID))
 
 #2SMR data for all nine tissues
-AD_2SMR_data = read.csv("AD_2SMR_data.csv")[,-c(1:2,4:5,7:8,18)]
+AD_2SMR_data = read.csv("AD_2SMR_data.csv")
 
 ################################################################################
 #Data wrangling for analysis
