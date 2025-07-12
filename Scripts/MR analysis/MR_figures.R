@@ -12,7 +12,7 @@ library(biomaRt) #ensembl gene annotations
 library(forestploter) #forest plot
 
 #Read in AD causal risk gene data - created in Multi_tissue_MR_data_filtering.R
-AD_2SMR_data = read.csv("AD_2SMR_data.csv")[,-c(1:2)]
+AD_2SMR_data = read.csv("AD_2SMR_data.csv")[,-c(1)]
 AD_SNP_data = read.csv( "AD_SNP_data.csv")[,-1]
 
 ################################################################################
@@ -242,6 +242,7 @@ AD_2SMR_data_table = AD_2SMR_data_table %>%
          "lci95" = "lo_ci",
          "uci95" = "up_ci") %>%
   arrange((`Exposure (Gene)`))
+
 
 write.csv(AD_2SMR_data_table, "AD_2SMR_data_table.csv")
 ################################################################################
